@@ -1,0 +1,11 @@
+web:
+   build: ./
+   dockerfile: docker-php5.6-apache
+   ports: 
+      - "127.0.0.1:8080:80"
+   volumes_from:
+      - data
+data:
+   image: tianon/true
+   volumes:
+   - ./src:/var/www/html

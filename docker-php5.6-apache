@@ -1,0 +1,37 @@
+FROM php:5.6-apache
+
+# disable interactive functions. 
+ENV DEBIAN_FRONTEND noninteractive
+
+# Install apache, php and supplimentary programs. also remove the list from the apt-get update at the end ;-)
+RUN apt-get update && \
+	apt-get install -y \
+	php5-mysql \
+	libmcrypt-dev \
+        libfreetype6-dev \
+	php5-json \
+	php5-curl \
+        libjpeg-dev \
+        libpng12-dev \
+ 	curl lynx-cur \
+        && docker-php-ext-install mysql mcrypt json pdo pdo_mysql mbstring \
+        && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=usr/include/ \
+        && docker-php-ext-install gd \
+	&& rm -rf /var/lib/apt/lists/* \
+	&& apt-get clean -y
+
+RUN a2enmod rewrite
+
+ADD apache2.conf /etc/apache2/
+#RUN sed -i "$ a ServerName localhost" /etc/apache2/apache2.conf
+#CMD sed -i '$a APACHE_SERVER_NAME=localhost' /etc/apache2/envvars
+
+RUN usermod -u 1000 www-data
+RUN chown -R www-data:www-data /var/www
+
+
+# By default, simply start apache.
+# RUN /usr/sbin/apache2ctl restart 
+CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
+EXPOSE 80
+
